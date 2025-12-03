@@ -35,7 +35,7 @@ const testCases: TestCase[] = [
   {
     name: '4 bâtiments - 1.5, 2, 3, 4.5',
     times: [1.5, 2, 3, 4.5],
-    expectedRatios: [1, 2, 3, 4],
+    expectedRatios: [3, 4, 6, 9],
   },
   {
     name: '5 bâtiments - 1, 2, 3, 4, 6',
