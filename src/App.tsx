@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash } from 'lucide-react'
+import { Trash, CircleX } from 'lucide-react'
 import { calculateOptimalRatios } from './utils/calculations'
 import { parseDuration } from './utils/durationParser'
 import { useProductionStore } from './store/productionStore'
@@ -129,6 +129,17 @@ function App() {
     }
   }
 
+  const clearForm = () => {
+    setChainName('')
+    setBuildings([
+      { id: '1', name: '', duration: '' },
+      { id: '2', name: '', duration: '' },
+    ])
+    setCalculatedRatios([])
+    setBase(null)
+    setDurationErrors({})
+  }
+
   return (
     <div className="min-h-screen bg-[#1C1C1C] flex flex-col items-center justify-start py-12 px-4">
       <div className="w-full max-w-2xl">
@@ -138,12 +149,25 @@ function App() {
 
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="mb-6">
-            <label
-              htmlFor="chain-name"
-              className="block text-white font-semibold mb-2"
-            >
-              Nom de la chaîne de production
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label
+                htmlFor="chain-name"
+                className="block text-white font-semibold"
+              >
+                Nom de la chaîne de production
+              </label>
+              {(chainName || buildings.some(b => b.name || b.duration) || calculatedRatios.length > 0) && (
+                <button
+                  type="button"
+                  onClick={clearForm}
+                  className="text-white hover:opacity-70 transition-opacity p-2"
+                  aria-label="Vider le formulaire"
+                  title="Vider le formulaire"
+                >
+                  <CircleX size={20} />
+                </button>
+              )}
+            </div>
             <input
               id="chain-name"
               type="text"
