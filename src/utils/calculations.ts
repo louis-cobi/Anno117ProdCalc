@@ -47,7 +47,14 @@ function getMultiplier(times: number[]): number {
 
 /**
  * Calcule les ratios optimaux pour une chaîne de production
- * L'objectif est de trouver le nombre minimal de bâtiments pour que tous fonctionnent en continu
+ * 
+ * Principe : Plus un bâtiment est lent (temps long), plus on a besoin de bâtiments
+ * pour compenser et équilibrer avec les bâtiments rapides.
+ * 
+ * Exemple : Mouton (0.5 min) et Laine (1 min)
+ * - Mouton produit 2 unités/min, Laine produit 1 unité/min
+ * - Pour équilibrer : 1 mouton nécessite 2 laine
+ * - Ratio : Mouton = 1, Laine = 2
  * 
  * @param times Liste des temps de production en minutes (peut contenir des décimaux)
  * @returns Objet avec base (LCM) et ratios (entiers simplifiés) pour chaque bâtiment
@@ -66,33 +73,55 @@ export function calculateOptimalRatios(times: number[]): {
     return { base: 1, ratios: [] }
   }
 
-  // Convertir les décimaux en entiers pour le calcul
+  // Convertir tous les temps en entiers en multipliant par une puissance de 10
+  // Cela permet de travailler avec des entiers pour éviter les erreurs de précision
   const multiplier = getMultiplier(validTimes)
   const integerTimes = validTimes.map((t) => Math.round(t * multiplier))
 
-  // Calculer le LCM de tous les temps
+  // Trouver le temps minimum (en entiers)
+  const minIntegerTime = Math.min(...integerTimes)
+
+  // Calculer les ratios relatifs : time / minTime
+  // Ces ratios sont des fractions qu'il faut convertir en entiers
+  // Exemple : si times = [2, 1.5], alors integerTimes = [20, 15], minTime = 15
+  // Ratios = [20/15, 15/15] = [4/3, 1]
+  
+  // Pour chaque temps, le ratio est integerTime / minIntegerTime
+  // On simplifie chaque fraction en divisant par le PGCD
+  const ratios: number[] = []
+  for (const time of integerTimes) {
+    const ratioGcd = gcd(time, minIntegerTime)
+    const numerator = time / ratioGcd
+    const denominator = minIntegerTime / ratioGcd
+    // Le ratio est numerator/denominator, on le stocke comme fraction
+    ratios.push(numerator / denominator)
+  }
+
+  // Trouver le LCM des dénominateurs pour convertir tous les ratios en entiers
+  // Pour chaque ratio, on a besoin de trouver son dénominateur après simplification
+  const denominators: number[] = []
+  for (const time of integerTimes) {
+    const ratioGcd = gcd(time, minIntegerTime)
+    const denominator = minIntegerTime / ratioGcd
+    denominators.push(denominator)
+  }
+  
+  // Calculer le LCM de tous les dénominateurs
+  const lcmOfDenominators = denominators.reduce((acc, den) => lcm(acc, den), denominators[0])
+
+  // Multiplier chaque ratio par le LCM des dénominateurs pour obtenir des entiers
+  const finalIntegerRatios = ratios.map(r => Math.round(r * lcmOfDenominators))
+
+  // Simplifier en divisant par le PGCD des ratios finaux pour obtenir les plus petits entiers
+  const gcdOfRatios = gcdArray(finalIntegerRatios)
+  const simplifiedRatios = finalIntegerRatios.map((r) => Math.round(r / gcdOfRatios))
+
+  // Calculer le LCM des temps originaux pour la base
   const lcmResult = integerTimes.reduce((acc, time) => lcm(acc, time), integerTimes[0])
-
-  // Convertir le LCM en temps réel (diviser par le multiplicateur)
   const base = lcmResult / multiplier
-
-  // Calculer les ratios bruts : combien de fois chaque bâtiment doit produire dans le cycle
-  const rawRatios = validTimes.map((time) => {
-    return base / time
-  })
-
-  // Convertir en entiers en multipliant par un facteur commun
-  // On trouve le plus petit multiplicateur qui rend tous les ratios entiers
-  // En fait, on peut utiliser le LCM des dénominateurs
-  const ratioMultiplier = getMultiplier(rawRatios)
-  const integerRatios = rawRatios.map((r) => Math.round(r * ratioMultiplier))
-
-  // Simplifier les ratios en divisant par leur PGCD pour obtenir les plus petits entiers
-  const gcdOfRatios = gcdArray(integerRatios)
-  const simplifiedRatios = integerRatios.map((r) => r / gcdOfRatios)
 
   return { 
     base: Math.round(base), 
-    ratios: simplifiedRatios.map(r => Math.round(r))
+    ratios: simplifiedRatios
   }
 }

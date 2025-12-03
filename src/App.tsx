@@ -4,6 +4,7 @@ import { calculateOptimalRatios } from './utils/calculations'
 import { parseDuration } from './utils/durationParser'
 import { useProductionStore } from './store/productionStore'
 import { SavedChains } from './components/SavedChains'
+import { TestCalculations } from './components/TestCalculations'
 
 interface BuildingInput {
   id: string
@@ -255,6 +256,8 @@ function App() {
             Calculer les ratios optimaux
           </button>
         </form>
+
+        <TestCalculations />
 
         <SavedChains />
       </div>
