@@ -1,4 +1,5 @@
 import { calculateOptimalRatios } from '../utils/calculations'
+import { testDurationParser } from '../utils/durationParser.test'
 
 interface TestCase {
   name: string
@@ -125,6 +126,12 @@ export function TestCalculations() {
         className="bg-white text-[#1C1C1C] px-6 py-3 rounded font-semibold border border-white hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#1C1C1C]"
       >
         🧪 Exécuter les tests
+      </button>
+      <button
+        onClick={testDurationParser}
+        className="bg-white text-[#1C1C1C] px-6 py-3 rounded font-semibold border border-white hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#1C1C1C] mt-4"
+      >
+        🔍 Tester les séparateurs (., :,)
       </button>
       <p className="text-gray-400 text-xs mt-4">
         Les résultats s'afficheront dans la console du navigateur (F12)
